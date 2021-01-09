@@ -1,8 +1,34 @@
+/*
+    PURE C DYNAMIC ARRAY
+
+    To create the implementaion use:
+        #define DARRAY_IMPL
+    before you include this file in *one* C or C++ file.
+
+    Default growth rate is 1.5.
+    Growth rate of the dynamic array can be changed by using:
+        #define DARRAY_GROWTH_RATE <value>
+    before creating the implementation to change growth rate to <value>.
+
+    Default starting capacity is 2.
+    Starting capacity of the dynamic array can be changed by using:
+        #define DARRAY_START_CAP <value>
+    before creating the implementation to change starting capacity to <value>.
+
+    Example:
+        #define DARRAY_IMPL
+        #define DARRAY_START_CAP 5
+        #define DARRAY_GROWTH_RATE 2
+        #include "containers/darray.h"
+
+    The definitions can be in any order as long as all of them are above the #include.
+*/
+
 #ifndef DARRAY_H
 #define DARRAY_H
 
 #ifndef DARRAY_GROWTH_RATE
-#define DARRAY_GROWTH_RATE 2
+#define DARRAY_GROWTH_RATE 1.5
 #endif // DARRAY_GROWTH_RATE
 
 #ifndef DARRAY_START_CAP
@@ -28,13 +54,6 @@
 #define da_erase_at(arr, index)      da_erase_at_impl(arr, index)
 #define da_erase_swap(arr, index)    da_erase_swap_impl(arr, index)
 
-typedef struct
-{
-    size_t cap;
-    size_t size;
-    char buffer[];
-} DA_Internal;
-
 void da_make_impl(void** arr, size_t cap, size_t type_size);
 void da_copy_impl(void** dest, void* src, size_t type_size);
 void da_move_impl(void** dest, void** src, size_t type_size);
@@ -49,9 +68,19 @@ inline size_t da_cap_impl(void* arr);
 
 #ifdef DARRAY_IMPL
 
+#ifndef DARRAY_IMPLEMENTED
+#define DARRAY_IMPLEMENTED
+
 #include <stdlib.h>
 #include <string.h>
 #include "hd_assert.h"
+
+typedef struct
+{
+    size_t cap;
+    size_t size;
+    char buffer[];
+} DA_Internal;
 
 #define da_data(arr) ((DA_Internal*)(arr) - 1)
 
@@ -199,4 +228,6 @@ inline size_t da_cap_impl(void* arr)
         da->size--;                             \
     } while(0)
 
-#endif
+#endif // DARRAY_IMPLEMENTED
+
+#endif // DARRAY_IMPL
