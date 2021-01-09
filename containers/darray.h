@@ -41,6 +41,7 @@
 #endif // DARRAY_START_CAP
 
 #define DArray(type) type*
+#define DA_Itr(type) type*
 
 #define da_make(arr)                 da_make_impl((void**)&arr, DARRAY_START_CAP, sizeof(*arr))
 #define da_copy(dest, src)           da_copy_impl((void**)&dest, (void*)src, sizeof(*src))
@@ -49,6 +50,9 @@
 
 #define da_make_with_cap(arr, cap)   da_make_impl((void**)&arr, cap, sizeof(*arr))
 #define da_resize(arr, cap)          da_resize_impl((void**)&arr, cap, sizeof(*arr))
+
+#define da_begin(arr)                da_get_itr_impl((void*)arr, 0, sizeof(*arr))
+#define da_end(arr)                  da_get_itr_impl((void*)arr, da_size(arr) - 1, sizeof(*arr))
 
 #define da_size(arr)                 da_size_impl((void*)arr)
 #define da_cap(arr)                  da_cap_impl((void*)arr)
@@ -59,12 +63,16 @@
 #define da_erase_at(arr, index)      da_erase_at_impl(arr, index)
 #define da_erase_swap(arr, index)    da_erase_swap_impl(arr, index)
 
+#define da_foreach(type, it, arr)    da_foreach_impl(type, it, arr)
+
 void da_make_impl(void** arr, size_t cap, size_t type_size);
 void da_copy_impl(void** dest, void* src, size_t type_size);
 void da_move_impl(void** dest, void** src, size_t type_size);
 void da_free_impl(void** arr);
 
 void da_resize_impl(void** arr, size_t new_cap, size_t type_size);
+
+DA_Itr(void) da_get_itr_impl(void* arr, size_t index, size_t type_size);
 
 inline size_t da_size_impl(void* arr);
 inline size_t da_cap_impl(void* arr);
@@ -106,7 +114,7 @@ void da_make_impl(void** arr, size_t cap, size_t type_size)
     da->cap  = cap;
     da->size = 0;
 
-    *arr = da + 1;
+    *arr = da->buffer;
 }
 
 void da_copy_impl(void** dest, void* src, size_t type_size)
@@ -124,7 +132,7 @@ void da_copy_impl(void** dest, void* src, size_t type_size)
     size_t filled_byte_size = src_da->size * type_size + sizeof(DA_Internal);
     memcpy(dest_da, src_da, filled_byte_size);
 
-    *dest = dest_da + 1;
+    *dest = dest_da->buffer;
 }
 
 void da_move_impl(void** dest, void** src, size_t type_size)
@@ -133,7 +141,7 @@ void da_move_impl(void** dest, void** src, size_t type_size)
     DA_Internal* dest_da = da_data(*src);
     
     *src  = NULL;
-    *dest = dest_da + 1;
+    *dest = dest_da->buffer;
 }
 
 void da_free_impl(void** arr)
@@ -162,7 +170,13 @@ void da_resize_impl(void** arr, size_t new_cap, size_t type_size)
     new_da->size = size;
     new_da->cap  = new_cap;
 
-    *arr = new_da + 1;
+    *arr = new_da->buffer;
+}
+
+DA_Itr(void) da_get_itr_impl(void* arr, size_t index, size_t type_size)
+{
+    hd_assert(arr != NULL);
+    return (char*)arr + (index * type_size);
 }
 
 inline size_t da_size_impl(void* arr)
@@ -240,6 +254,8 @@ inline size_t da_cap_impl(void* arr)
         arr[index] = arr[size - 1];             \
         da->size--;                             \
     } while(0)
+
+#define da_foreach_impl(type, it, arr) for (DA_Itr(type) it = da_begin(arr); it != da_end(arr); it++)
 
 #endif // DARRAY_IMPLEMENTED
 
