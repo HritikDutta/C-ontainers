@@ -1,5 +1,6 @@
 /*
     PURE C DYNAMIC ARRAY
+    This implementation is heavily based on Sean Barrett's dynamic array implementation.
 
     To create the implementaion use:
         #define DARRAY_IMPL
@@ -14,6 +15,10 @@
     Starting capacity of the dynamic array can be changed by using:
         #define DARRAY_START_CAP <value>
     before creating the implementation to change starting capacity to <value>.
+
+    Assertions in the implementation can be removed by using:
+        #define CONTAINER_NO_ASSERT
+    before creating the implemenation.
 
     Example:
         #define DARRAY_IMPL
@@ -70,6 +75,14 @@ inline size_t da_cap_impl(void* arr);
 
 #ifndef DARRAY_IMPLEMENTED
 #define DARRAY_IMPLEMENTED
+
+/* METHOD IMPLEMENTATIONS */
+
+/*
+    DArray memory layout:
+    [cap, size, value, value value, ...]
+               ^ --> array pointer
+*/
 
 #include <stdlib.h>
 #include <string.h>
