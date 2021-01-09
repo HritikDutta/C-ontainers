@@ -3,10 +3,23 @@
 #define DARRAY_IMPL
 #include "containers/darray.h"
 
-#define LOG_INT(x) printf("%s: %d\n", #x, x)
+#define STRING_IMPL
+#include "containers/string.h"
+
+void da_test();
+void string_test();
 
 int main()
 {
+    da_test();
+    printf("\n");
+    string_test();
+}
+
+void da_test()
+{
+    printf("---DArray Test---\n");
+
     DArray(int) arr = NULL;
     da_make(arr);
 
@@ -35,4 +48,26 @@ int main()
 
     da_free(arr);
     da_free(dest);
+
+    printf("\nFreed successfully!\n");
+}
+
+void string_test()
+{
+    printf("---String Test---\n");
+
+    String str = string_make("Hello World!");
+    printf("str :: %s\n", str);
+    
+    
+    String cpy = NULL;
+    string_copy(&cpy, str);
+
+    printf("cpy :: %s\n", cpy);
+    printf("cpy :: length: %zd\n", string_length(cpy));
+
+    string_free(&str);
+    string_free(&cpy);
+
+    printf("\nFreed successfully!\n");
 }
