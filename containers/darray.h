@@ -147,9 +147,9 @@ void da_move_impl(void** dest, void** src, size_t type_size)
 void da_free_impl(void** arr)
 {
     hd_assert(*arr != NULL);
-    DA_Internal* da = da_data(arr);
+    DA_Internal* da = da_data(*arr);
     free(da);
-    arr = NULL;
+    *arr = NULL;
 }
 
 
