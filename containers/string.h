@@ -11,6 +11,12 @@ size_t string_length(String str);
 
 #endif // CONTAINER_STRING_H
 
+// #define STRING_IMPL
+#ifdef STRING_IMPL
+
+#ifndef STRING_IMPLEMENTED
+#define STRING_IMPLEMENTED
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -65,3 +71,7 @@ size_t string_length(String str)
     if (!str) return 0;
     return string_data(str)->length;
 }
+
+#endif // STRING_IMPLEMENTED
+
+#endif // STRING_IMPL
