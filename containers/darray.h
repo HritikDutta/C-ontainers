@@ -52,7 +52,7 @@
 #define da_resize(arr, cap)          da_resize_impl((void**)&arr, cap, sizeof(*arr))
 
 #define da_begin(arr)                da_get_itr_impl((void*)arr, 0, sizeof(*arr))
-#define da_end(arr)                  da_get_itr_impl((void*)arr, da_size(arr) - 1, sizeof(*arr))
+#define da_end(arr)                  da_get_itr_impl((void*)arr, da_size(arr), sizeof(*arr))
 
 #define da_size(arr)                 da_size_impl((void*)arr)
 #define da_cap(arr)                  da_cap_impl((void*)arr)
@@ -255,7 +255,7 @@ inline size_t da_cap_impl(void* arr)
         da->size--;                             \
     } while(0)
 
-#define da_foreach_impl(type, it, arr) for (DA_Itr(type) it = da_begin(arr); it != da_end(arr); it++)
+#define da_foreach_impl(type, it, arr) for (DA_Itr(type) it = (DA_Itr(type))da_begin(arr); it != (DA_Itr(type))da_end(arr); it++)
 
 #endif // DARRAY_IMPLEMENTED
 
