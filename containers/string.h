@@ -7,11 +7,13 @@ String string_make(char* cstr);
 void   string_copy(String* dest, String src);
 void   string_free(String* str);
 
-size_t string_length(String str);
+void string_resize(String* str, size_t new_len);
+
+inline size_t string_length(String str);
+inline int string_cmp(String s1, String s2);
 
 #endif // CONTAINER_STRING_H
 
-// #define STRING_IMPL
 #ifdef STRING_IMPL
 
 #ifndef STRING_IMPLEMENTED
@@ -60,16 +62,40 @@ void string_copy(String* dest, String src)
 
 void string_free(String* str)
 {
-    hd_assert(*str);
+    hd_assert(*str != NULL);
     String_Internal* s = string_data(*str);
     free(s);
     *str = NULL;
 }
 
-size_t string_length(String str)
+// Dangerous...
+void string_resize(String* str, size_t new_len)
+{
+    size_t byte_size = (new_len + 1) * sizeof(char) + sizeof(String_Internal);
+
+    String_Internal* s;
+    if (*str) s = (String_Internal*) realloc(string_data(*str), byte_size);
+    else      s = (String_Internal*) malloc(byte_size);
+
+    hd_assert(s != NULL);
+    s->length = new_len;
+    *str = s->buffer;
+}
+
+inline size_t string_length(String str)
 {
     if (!str) return 0;
     return string_data(str)->length;
+}
+
+inline int string_cmp(String s1, String s2)
+{
+    if (s1 && s2)
+        return strcmp(s1, s2) == 0;
+    else if (!s1 && !s2)
+        return 1;
+
+    return 0;    
 }
 
 #endif // STRING_IMPLEMENTED
