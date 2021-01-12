@@ -7,6 +7,8 @@ String string_make(char* cstr);
 void   string_copy(String* dest, String src);
 void   string_free(String* str);
 
+String get_line(String contents, size_t* index);
+void string_replace(String* str, char* cstr);
 void string_resize(String* str, size_t new_len);
 
 inline size_t string_length(String str);
@@ -34,7 +36,7 @@ typedef struct
 
 String string_make(char* cstr)
 {
-    size_t len = strlen(cstr);
+    size_t len = strlen(cstr) + 1;
     String_Internal* s = (String_Internal*) malloc(len * sizeof(char) + sizeof(String));
     hd_assert(s != NULL);
     
@@ -47,7 +49,7 @@ void string_copy(String* dest, String src)
 {
     hd_assert(src != NULL);
     String_Internal* src_str = string_data(src);
-    size_t byte_size = src_str->length * sizeof(char) + sizeof(String_Internal);
+    size_t byte_size = (src_str->length + 1) * sizeof(char) + sizeof(String_Internal);
     
     String_Internal* dest_str;
     if (*dest) dest_str = (String_Internal*) realloc(string_data(*dest), byte_size);
@@ -66,6 +68,44 @@ void string_free(String* str)
     String_Internal* s = string_data(*str);
     free(s);
     *str = NULL;
+}
+
+String get_line(String contents, size_t* index)
+{
+    hd_assert(contents != NULL);
+    hd_assert(contents[*index] != '\0');
+    
+    char temp[1024];
+    size_t cpy_idx = *index;
+    while (
+        contents[cpy_idx] != '\0' &&
+        contents[cpy_idx] != '\n' &&
+        contents[cpy_idx] != '\r'
+    )
+    {
+        temp[cpy_idx - *index] = contents[cpy_idx];
+        cpy_idx++;
+    }
+
+    if (cpy_idx == *index && contents[cpy_idx] == '\0')
+        return NULL;
+
+    temp[cpy_idx - *index]     = '\n';
+    temp[cpy_idx - *index + 1] = '\0';
+    *index = cpy_idx + 1 + (contents[cpy_idx] == '\r');
+    return string_make(temp);
+}
+
+void string_replace(String* str, char* cstr)
+{
+    hd_assert(*str);
+    size_t length = strlen(cstr);
+    size_t byte_size = (length + 1) * sizeof(char) + sizeof(String_Internal);
+    String_Internal* s = (String_Internal*) realloc(string_data(*str), byte_size);
+
+    s->length = length;
+    strcpy(s->buffer, cstr);
+    *str = s->buffer;
 }
 
 // Dangerous...
