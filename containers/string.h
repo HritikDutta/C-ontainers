@@ -7,12 +7,18 @@ String string_make(char* cstr);
 void   string_copy(String* dest, String src);
 void   string_free(String* str);
 
-String get_line(String contents, size_t* index);
-void string_replace(String* str, char* cstr);
-void string_resize(String* str, size_t new_len);
+String string_make_till_char(char* cstr, char delim);
+String string_make_till_n(char* cstr, size_t n);
+void   string_replace(String* str, char* cstr);
+
+String string_get_line(String contents, size_t* index);
+void   string_resize(String* str, size_t new_len);
 
 inline size_t string_length(String str);
-inline int string_cmp(String s1, String s2);
+inline int    string_cmp(String s1, String s2);
+
+void string_append(String* dest, char* other);
+void string_to_lower(String* str);
 
 #endif // CONTAINER_STRING_H
 
@@ -37,7 +43,7 @@ typedef struct
 String string_make(char* cstr)
 {
     size_t len = strlen(cstr) + 1;
-    String_Internal* s = (String_Internal*) malloc(len * sizeof(char) + sizeof(String));
+    String_Internal* s = (String_Internal*) malloc(len * sizeof(char) + sizeof(String_Internal));
     hd_assert(s != NULL);
     
     s->length = len;
@@ -70,29 +76,62 @@ void string_free(String* str)
     *str = NULL;
 }
 
-String get_line(String contents, size_t* index)
+String string_make_till_char(char* cstr, char delim)
 {
-    hd_assert(contents != NULL);
-    hd_assert(contents[*index] != '\0');
-    
-    char temp[1024];
-    size_t cpy_idx = *index;
-    while (
-        contents[cpy_idx] != '\0' &&
-        contents[cpy_idx] != '\n' &&
-        contents[cpy_idx] != '\r'
-    )
-    {
-        temp[cpy_idx - *index] = contents[cpy_idx];
-        cpy_idx++;
-    }
+    char* end = strchr(cstr, delim);
 
-    if (cpy_idx == *index && contents[cpy_idx] == '\0')
+    if (!end)
+        return string_make(cstr);
+
+    size_t len = end - cstr;
+    size_t byte_size = len * sizeof(char) + sizeof(String_Internal);
+    String_Internal* s = (String_Internal*) malloc(byte_size);
+    hd_assert(s != NULL);
+
+    s->length = len;
+    strncpy(s->buffer, cstr, len);
+    s->buffer[len] = '\0';
+    return s->buffer;
+}
+
+String string_make_till_n(char* cstr, size_t n)
+{
+    hd_assert(n < strlen(cstr));
+
+    size_t byte_size = (n + 1) * sizeof(char) + sizeof(String_Internal);
+    String_Internal* s = (String_Internal*) malloc(byte_size);
+    hd_assert(s != NULL);
+
+    s->length = n + 1;
+    strncpy(s->buffer, cstr, n);
+    s->buffer[n] = '\0';
+    return s->buffer;
+}
+
+String string_get_line(String contents, size_t* index)
+{
+    if (!contents)
         return NULL;
 
-    temp[cpy_idx - *index]     = '\n';
-    temp[cpy_idx - *index + 1] = '\0';
-    *index = cpy_idx + 1 + (contents[cpy_idx] == '\r');
+    if (contents[*index] == '\0')
+        return NULL;
+    
+    char temp[1024];
+    size_t cpy_idx = 0;
+    while (contents[*index] != '\0' &&
+           contents[*index] != '\n')
+    {
+        temp[cpy_idx] = contents[*index];
+        cpy_idx++;
+        (*index)++;
+    }
+
+    if (contents[*index] != '\0')
+        (*index)++;
+
+    temp[cpy_idx] = '\n';
+    temp[cpy_idx + 1] = '\0';
+
     return string_make(temp);
 }
 
@@ -136,6 +175,31 @@ inline int string_cmp(String s1, String s2)
         return 1;
 
     return 0;    
+}
+
+void string_append(String* dest, char* other)
+{
+    if (*dest == NULL)
+    {
+        *dest = string_make(other);
+    }
+    else
+    {
+        size_t prev_len = string_length(*dest);
+        string_resize(dest, prev_len + strlen(other));
+        String_Internal* s = ((String_Internal*)dest - 1);
+        s->length = prev_len + strlen(other);
+        strcpy(*dest + prev_len - 1, other);
+    }
+}
+
+void string_to_lower(String* str)
+{
+    for (size_t i = 0; i < string_length(*str); i++)
+    {
+        if ((*str)[i] >= 'A' && (*str)[i] <= 'Z')
+            (*str)[i] += 'a' - 'A';
+    }
 }
 
 #endif // STRING_IMPLEMENTED
