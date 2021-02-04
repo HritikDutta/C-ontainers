@@ -203,7 +203,7 @@ inline size_t da_cap_impl(void* arr)
         if (cap == 0)    da_resize(arr, DARRAY_START_CAP);          \
         if (size >= cap) da_resize(arr, DARRAY_GROWTH_RATE * cap);  \
                                                                     \
-        arr[da_data(arr)->size++] = value;                          \
+        arr[da_data(arr)->size++] = (value);                        \
     } while (0)
 
 #define da_pop_back_impl(arr) \
