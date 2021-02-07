@@ -23,7 +23,7 @@ int main()
 
 void da_test()
 {
-    printf("---DArray Test---\n");
+    printf("--- DArray Test ---\n");
 
     DArray(int) arr = NULL;
     da_make(arr);
@@ -54,12 +54,12 @@ void da_test()
     da_free(arr);
     da_free(dest);
 
-    printf("\nFreed successfully!\n");
+    printf("\nTest Successful!\n");
 }
 
 void string_test()
 {
-    printf("---String Test---\n");
+    printf("--- String Test ---\n");
 
     String str = string_make("Hello World!");
     printf("str :: %s\n", str);
@@ -74,33 +74,29 @@ void string_test()
     string_free(&str);
     string_free(&cpy);
 
-    printf("\nFreed successfully!\n");
+    printf("\nTest Successful!\n");
 }
 
 void dict_test()
 {
-    printf("---Dictionary Test---\n");
+    printf("--- Dictionary Test ---\n");
 
     Dict(int) dict;
     dict_make(dict);
 
-    dict_put(dict, "Hello", 1);
-    dict_put(dict, "World", 2);
-    dict_put(dict, "There", 3);
-    dict_put(dict, "Smthg", 4);
+    dict_put(dict, "One", 1);
+    dict_put(dict, "Two", 2);
+    dict_put(dict, "Three", 3);
+    dict_put(dict, "Four", 4);
 
     printf("dict.cap : %zd\n", dict.cap);
 
-    for (int i = 0; i < dict.cap; i++)
-    {
-        if (dict.buckets[i].key)
-            printf("%d. \"%s\" - %d\n", i, dict.buckets[i].key, dict.buckets[i].value);
-        else
-            printf("%d. ---\n", i);
-
-    }
+    printf("dict[\"One\"]\t:: %d\n", dict_get(dict, "One"));
+    printf("dict[\"Two\"]\t:: %d\n", dict_get(dict, "Two"));
+    printf("dict[\"Three\"]\t:: %d\n", dict_get(dict, "Three"));
+    printf("dict[\"Four\"]\t:: %d\n", dict_get(dict, "Four"));
 
     dict_free(dict);
  
-    printf("\nFreed successfully!\n");
+    printf("\nTest Successful!\n");
 }
