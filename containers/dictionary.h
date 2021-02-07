@@ -158,6 +158,15 @@ Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key
                                                                   \
     } while (0)
 
+#define dict_remove(dict, _key) \
+    do                                                                                                              \
+    {                                                                                                               \
+        hd_assert(dict.buckets);                                                                                    \
+        String k = dict.buckets[(dict_find_bucket(dict.buckets, dict.cap, sizeof(*dict.buckets), _key)).index].key; \
+        dict.buckets[(dict_find_bucket(dict.buckets, dict.cap, sizeof(*dict.buckets), _key)).index].key = NULL;     \
+        string_free(&k);                                                                                            \
+    } while (0)
+
 #define dict_free(dict) \
     do                                        \
     {                                         \
@@ -171,22 +180,5 @@ Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key
 #define dict_end(dict)   ((dict.buckets) ? dict_bucket_at(dict.buckets, dict.cap, sizeof(*dict.buckets)) : NULL)
 
 #define dict_get(dict, _key) ((dict.buckets) ? dict.buckets[(dict_find_bucket(dict.buckets, dict.cap, sizeof(*dict.buckets), _key)).index].value : 0)
-
-/*
-
-Dict(int) dict;
-dict_make(dict);
-
-dict_put(dict, "Hello", something);
-
-if (dict_find(dict, "Hello") != dict_end(dict))
-{
-    int hello = dict_get(dict, "Hello");
-    ...
-}
-
-dict_free(dict);
-
-*/
 
 #endif // DICTIONARY_H
