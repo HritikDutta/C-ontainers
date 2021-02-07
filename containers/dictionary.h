@@ -45,11 +45,6 @@ inline size_t dict_string_hasher(String key)
         }* buckets;     \
     }
 
-void* dict_allocate_buckets(size_t cap, size_t bkt_size)
-{
-    return calloc(cap, bkt_size);
-}
-
 typedef struct
 {
     String key;
@@ -91,33 +86,76 @@ Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key
         dict.cap = DICT_START_CAP;                                    \
         dict.filled = 0;                                              \
         dict.buckets = calloc(DICT_START_CAP, sizeof(*dict.buckets)); \
+        hd_assert(dict.buckets != NULL);                              \
     } while (0)
     
 
+// @Todo: Figure this out lol
+#define dict_resize(dict, ncap) \
+    do                                                                                              \
+    {                                                                                               \
+        size_t new_cap = ncap;                                                                      \
+        Dict_Bucket_Internal* new_bkts = calloc(new_cap, sizeof(*dict.buckets));                    \
+        hd_assert(new_bkts != NULL);                                                                \
+                                                                                                    \
+        for (int i = 0; i < dict.cap; i++)                                                          \
+        {                                                                                           \
+            if (dict.buckets[i].key == NULL)                                                        \
+                continue;                                                                           \
+                                                                                                    \
+            size_t index = dict_string_hasher(dict.buckets[i].key) % new_cap;                       \
+            size_t start = index;                                                                   \
+                                                                                                    \
+            do                                                                                      \
+            {                                                                                       \
+                Dict_Bucket_Internal* bkt = dict_bucket_at(new_bkts, index, sizeof(*dict.buckets)); \
+                                                                                                    \
+                if (bkt->key == NULL)                                                               \
+                {                                                                                   \
+                    bkt->key = dict.buckets[i].key;                                                 \
+                    memcpy(bkt->value, &dict.buckets[i].value, sizeof(dict.buckets[i].value));      \
+                    break;                                                                          \
+                }                                                                                   \
+                                                                                                    \
+                index = (index + 1) % new_cap;                                                      \
+            } while (index != start);                                                               \
+        }                                                                                           \
+                                                                                                    \
+        dict.cap = new_cap;                                                                         \
+        free(dict.buckets);                                                                         \
+        dict.buckets = (void*) new_bkts;                                                            \
+    } while (0)
+
 // @Todo: Rehash based on load factor
 #define dict_put(dict, _key, _value) \
-    do {                                                     \
-        size_t index = dict_string_hasher(_key) % dict.cap;  \
-        size_t start = index;                                \
-                                                             \
-        do                                                   \
-        {                                                    \
-            if (dict.buckets[index].key == NULL)             \
-            {                                                \
-                dict.buckets[index].key = string_make(_key); \
-                dict.buckets[index].value = _value;          \
-                break;                                       \
-            }                                                \
-                                                             \
-            if (string_cmp(dict.buckets[index].key, _key))   \
-            {                                                \
-                dict.buckets[index].value = _value;          \
-                break;                                       \
-            }                                                \
-                                                             \
-            index++;                                         \
-        } while (index != start);                            \
-                                                             \
+    do {                                                          \
+        if (dict.buckets == NULL)                                 \
+            dict_make(dict);                                      \
+        else if (((dict.filled + 1) / dict.cap) >= DICT_MAX_LOAD) \
+            dict_resize(dict, dict.cap * DICT_GROWTH_RATE);       \
+                                                                  \
+        size_t index = dict_string_hasher(_key) % dict.cap;       \
+        size_t start = index;                                     \
+                                                                  \
+        do                                                        \
+        {                                                         \
+            if (dict.buckets[index].key == NULL)                  \
+            {                                                     \
+                dict.buckets[index].key = string_make(_key);      \
+                dict.buckets[index].value = _value;               \
+                dict.filled++;                                    \
+                break;                                            \
+            }                                                     \
+                                                                  \
+            if (string_cmp(dict.buckets[index].key, _key))        \
+            {                                                     \
+                dict.buckets[index].value = _value;               \
+                break;                                            \
+            }                                                     \
+                                                                  \
+            index++;                                              \
+        } while (index != start);                                 \
+                                                                  \
     } while (0)
 
 #define dict_free(dict) \
