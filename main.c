@@ -91,10 +91,16 @@ void dict_test()
 
     printf("dict.cap : %zd\n", dict.cap);
 
-    printf("dict[\"One\"]\t:: %d\n", dict_get(dict, "One"));
-    printf("dict[\"Two\"]\t:: %d\n", dict_get(dict, "Two"));
-    printf("dict[\"Three\"]\t:: %d\n", dict_get(dict, "Three"));
-    printf("dict[\"Four\"]\t:: %d\n", dict_get(dict, "Four"));
+    printf("dict[\"One\"]   :: %d\n", dict_get(dict, "One"));
+    printf("dict[\"Two\"]   :: %d\n", dict_get(dict, "Two"));
+    printf("dict[\"Three\"] :: %d\n", dict_get(dict, "Three"));
+    printf("dict[\"Four\"]  :: %d\n", dict_get(dict, "Four"));
+
+    dict_remove(dict, "Three");
+    if (dict_find(dict, "Three") == dict_end(dict))
+        printf("\ndict[\"Three\"] removed.\n");
+    else
+        printf("\ndict[\"Three\"] not removed.\n");
 
     dict_free(dict);
  
