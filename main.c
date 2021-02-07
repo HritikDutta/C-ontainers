@@ -6,14 +6,19 @@
 #define STRING_IMPL
 #include "containers/string.h"
 
+#include "containers/dictionary.h"
+
 void da_test();
 void string_test();
+void dict_test();
 
 int main()
 {
     da_test();
     printf("\n");
     string_test();
+    printf("\n");
+    dict_test();
 }
 
 void da_test()
@@ -69,5 +74,33 @@ void string_test()
     string_free(&str);
     string_free(&cpy);
 
+    printf("\nFreed successfully!\n");
+}
+
+void dict_test()
+{
+    printf("---Dictionary Test---\n");
+
+    Dict(int) dict;
+    dict_make(dict);
+
+    dict_put(dict, "Hello", 1);
+    dict_put(dict, "World", 2);
+    dict_put(dict, "There", 3);
+    dict_put(dict, "Smthg", 4);
+
+    printf("dict.cap : %zd\n", dict.cap);
+
+    for (int i = 0; i < dict.cap; i++)
+    {
+        if (dict.buckets[i].key)
+            printf("%d. \"%s\" - %d\n", i, dict.buckets[i].key, dict.buckets[i].value);
+        else
+            printf("%d. ---\n", i);
+
+    }
+
+    dict_free(dict);
+ 
     printf("\nFreed successfully!\n");
 }
