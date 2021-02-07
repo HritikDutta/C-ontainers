@@ -92,11 +92,10 @@ Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key
         hd_assert(dict.buckets != NULL);                              \
     } while (0)
     
-
-#define dict_resize(dict, ncap) \
+#define dict_resize(dict, _cap) \
     do                                                                                              \
     {                                                                                               \
-        size_t new_cap = ncap;                                                                      \
+        size_t new_cap = _cap;                                                                      \
         Dict_Bucket_Internal* new_bkts = calloc(new_cap, sizeof(*dict.buckets));                    \
         hd_assert(new_bkts != NULL);                                                                \
                                                                                                     \
@@ -181,5 +180,9 @@ Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key
 #define dict_end(dict)   ((dict.buckets) ? dict_bucket_at(dict.buckets, dict.cap, sizeof(*dict.buckets)) : NULL)
 
 #define dict_get(dict, _key) ((dict.buckets) ? dict.buckets[(dict_find_bucket(dict.buckets, dict.cap, sizeof(*dict.buckets), _key)).index].value : 0)
+
+// To be consistent with other data structures
+#define dict_cap(dict)    (dict.cap)
+#define dict_filled(dict) (dict.filled)
 
 #endif // DICTIONARY_H
