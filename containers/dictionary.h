@@ -20,6 +20,9 @@
 
 inline size_t dict_string_hasher(String key)
 {
+    if (key == NULL)
+        return 0;
+
     size_t prime = 16777619U;
     size_t val = (size_t) key[0];
 
@@ -90,7 +93,6 @@ Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key
     } while (0)
     
 
-// @Todo: Figure this out lol
 #define dict_resize(dict, ncap) \
     do                                                                                              \
     {                                                                                               \
@@ -126,7 +128,6 @@ Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key
         dict.buckets = (void*) new_bkts;                                                            \
     } while (0)
 
-// @Todo: Rehash based on load factor
 #define dict_put(dict, _key, _value) \
     do {                                                          \
         if (dict.buckets == NULL)                                 \
