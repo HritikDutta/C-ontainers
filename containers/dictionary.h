@@ -20,7 +20,16 @@
 
 inline size_t dict_string_hasher(String key)
 {
-    return 0;
+    unsigned int prime = 16777619U;
+    unsigned int val = 0U;
+
+    for (int i = 0; key[i] != '\0'; i++)
+    {
+        val ^= (size_t)key[i];
+        val *= prime;
+    }
+
+    return val;
 }
 
 #define Dict(type) \
