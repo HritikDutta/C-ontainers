@@ -20,12 +20,12 @@
 
 inline size_t dict_string_hasher(String key)
 {
-    unsigned int prime = 16777619U;
-    unsigned int val = 0U;
+    size_t prime = 16777619U;
+    size_t val = (size_t) key[0];
 
     for (int i = 0; key[i] != '\0'; i++)
     {
-        val ^= (size_t)key[i];
+        val ^= (size_t) key[i];
         val *= prime;
     }
 
