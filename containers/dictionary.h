@@ -20,10 +20,7 @@
 
 inline size_t dict_string_hasher(String key)
 {
-    if (key == NULL)
-        return 0;
-
-    size_t prime = 16777619U;
+    size_t prime = 16794649U;
     size_t val = (size_t) key[0];
 
     for (int i = 0; key[i] != '\0'; i++)
@@ -47,6 +44,13 @@ inline size_t dict_string_hasher(String key)
             type value; \
         }* buckets;     \
     }
+
+#define Dict_Bkt(type) \
+    struct          \
+    {               \
+        String key; \
+        type value; \
+    }*
 
 typedef struct
 {
@@ -184,5 +188,30 @@ Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key
 // To be consistent with other data structures
 #define dict_cap(dict)    (dict.cap)
 #define dict_filled(dict) (dict.filled)
+
+void dict_next_bucket_impl(void** bkt, void* end, size_t stride)
+{
+    void* itr = *bkt;
+
+    while (1)
+    {
+        itr = (char*) itr + stride;
+
+        if (itr == end)
+            break;
+
+        Dict_Bucket_Internal* b = (Dict_Bucket_Internal*) itr;
+        if (b->key != NULL)
+            break;
+    }
+
+    *bkt = itr;
+}
+
+#define dict_next_bucket(bkt, dict) dict_next_bucket_impl(&bkt, dict_end(dict), sizeof(*dict.buckets))
+
+#define dict_foreach(type, it, dict) for (Dict_Bkt(int) it = dict_begin(dict); \
+                                          it != dict_end(dict);                \
+                                          dict_next_bucket(it, dict))
 
 #endif // DICTIONARY_H
