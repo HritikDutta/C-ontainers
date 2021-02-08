@@ -46,10 +46,10 @@ inline size_t dict_string_hasher(String key)
     }
 
 #define Dict_Bkt(type) \
-    struct          \
-    {               \
-        String key; \
-        type value; \
+    struct Dict_Bkt_Ptr \
+    {                   \
+        String key;     \
+        type value;     \
     }*
 
 typedef struct
