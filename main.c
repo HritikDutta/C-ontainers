@@ -98,14 +98,12 @@ void dict_test()
 
     dict_remove(dict, "Three");
     if (dict_find(dict, "Three") == dict_end(dict))
-        printf("\ndict[\"Three\"] removed.\n");
+        printf("\nRemoved dict[\"Three\"]\n\n");
     else
-        printf("\ndict[\"Three\"] not removed.\n");
+        printf("\ndict[\"Three\"] not removed.\n\n");
 
     dict_foreach(int, it, dict)
-    {
-        printf("%s : %d\n", it->key, it->value);
-    }
+        printf("dict[\"%s\"] :: %d\n", it->key, it->value);
 
     dict_free(dict);
  
