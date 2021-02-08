@@ -89,7 +89,7 @@ void dict_test()
     dict_put(dict, "Three", 3);
     dict_put(dict, "Four", 4);
 
-    printf("dict.cap : %zd\n", dict.cap);
+    printf("dict.cap : %zd\n", dict_cap(dict));
 
     printf("dict[\"One\"]   :: %d\n", dict_get(dict, "One"));
     printf("dict[\"Two\"]   :: %d\n", dict_get(dict, "Two"));
@@ -101,6 +101,11 @@ void dict_test()
         printf("\ndict[\"Three\"] removed.\n");
     else
         printf("\ndict[\"Three\"] not removed.\n");
+
+    dict_foreach(int, it, dict)
+    {
+        printf("%s : %d\n", it->key, it->value);
+    }
 
     dict_free(dict);
  
